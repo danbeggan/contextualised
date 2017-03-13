@@ -1,11 +1,5 @@
 from rest_framework import serializers
-from .models import Disambiguation, WikiPage,  Search
-
-class DisambiguationSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Disambiguation
-        fields = ('synset', 'definition')
+from .models import WikiPage, Search
 
 class WikiPageSerializer(serializers.ModelSerializer):
 
@@ -14,9 +8,8 @@ class WikiPageSerializer(serializers.ModelSerializer):
         fields = ('title', 'pageid', 'extract')
 
 class SearchSerializer(serializers.ModelSerializer):
-    disambiguation = DisambiguationSerializer(read_only=True)
     wikipage = WikiPageSerializer(read_only=True)
 
     class Meta:
         model = Search
-        fields = ('term', 'term_lemma', 'paragraph', 'disambiguation', 'wikipage')
+        fields = ('id', 'term', 'term_lemma', 'paragraph', 'wikipage')

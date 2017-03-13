@@ -3,9 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
-from .models import Disambiguation, WikiPage, Search
+from .models import WikiPage, Search
 from .serializers import SearchSerializer
-from .wsd import classify
 from .wiki import search_wikipedia
 
 class SearchViewSet(viewsets.ViewSet):
@@ -21,12 +20,9 @@ class SearchViewSet(viewsets.ViewSet):
         paragraph = request.query_params.get('paragraph','')
 
         if term and paragraph:
-            disambiguation, term_lemma = classify(term, paragraph)
-
-            # TODO: after getting disambiguation object need to get correct wikipedia page
 
             # Get wikipedia page using paragraph text
-            if disambiguation is None:
+            if None is None:
                 wikipage = search_wikipedia(term_lemma)
 
                 search = Search(
@@ -40,13 +36,7 @@ class SearchViewSet(viewsets.ViewSet):
             else:
                 wikipage = search_wikipedia(term_lemma)
 
-                print '@@@@@@@@@@@@@@@'
-                print wikipage
-                print '@@@@@@@@@@@@@@@'
-                print disambiguation
-
                 search = Search(
-                    disambiguation = disambiguation,
                     wikipage = wikipage,
                     term = term,
                     term_lemma = term_lemma,
