@@ -3,11 +3,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
-from .models import WikiPage, Search
+from .models import Classifier, WikiPage, Search
 from .serializers import SearchSerializer
-from .wiki import search_wikipedia
+
+from .text_processing import TextProcessor
 
 class SearchViewSet(viewsets.ViewSet):
+    # Static processor for text processing method
+    processor = TextProcessor()
 
     def list(self, request):
         queryset = Search.objects.all()
@@ -20,28 +23,25 @@ class SearchViewSet(viewsets.ViewSet):
         paragraph = request.query_params.get('paragraph','')
 
         if term and paragraph:
+            term = processor.remove_punctuation(term)
 
-            # Get wikipedia page using paragraph text
-            if None is None:
-                wikipage = search_wikipedia(term_lemma)
+            # 1 get term lemma
+            term_lemma = get_lemma(term)
 
-                search = Search(
-                    wikipage = wikipage,
-                    term = term,
-                    term_lemma = term_lemma,
-                    paragraph = paragraph
-                )
+            # 2 check if classifier exhists
 
-            # Get wikipedia page using disambiguation
-            else:
-                wikipage = search_wikipedia(term_lemma)
+            # 3.1 YES then get classifier [array]
 
-                search = Search(
-                    wikipage = wikipage,
-                    term = term,
-                    term_lemma = term_lemma,
-                    paragraph = paragraph
-                )
+            # 3.2 NO then create classifier
+
+            # 4 classify term
+
+            search = Search(
+                wikipage = wikipage,
+                term = term,
+                term_lemma = term_lemma,
+                paragraph = paragraph
+            )
 
             search.save()
 
