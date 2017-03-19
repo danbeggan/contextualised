@@ -34,10 +34,12 @@ def search_wikipedia (term, no_results=5, extract_sentences=''):
         title = data['query']['pages'][i]['title']
         extract = data['query']['pages'][i]['extract']
 
-        wiki_page = WikiPage.objects.get_or_create(
-            title = title
-            pageid = i
-            extract = extract
-        )
+        # Dont include disambiguation article in training data
+        if "(disambiguation)" not in title:
+            wiki_page = WikiPage.objects.get_or_create(
+                title = title,
+                page_id = i,
+                extract = extract
+            )
 
     return page_ids

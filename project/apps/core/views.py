@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
-from .models import Classifier, WikiPage, Search
+from .models import WikiPage, Search
 from .serializers import SearchSerializer
 
 from .text_processing import TextProcessor
@@ -34,19 +34,29 @@ class SearchViewSet(viewsets.ViewSet):
             # 3.1 YES then get classifier [array]
             classifier = next((x for x in classifiers_list if x.value == value), None)
 
+            print '1 @@@@@@@@@@@@@@@@'
+            print classifier
+
             # 3.2 NO then create classifier
             if classifier == None:
                 # Search wikipedia returns ids for pages & creates models
                 wiki_page_ids = search_wikipedia(term_lemma)
+                print '2 @@@@@@@@@@@@@@@@'
+                print wiki_page_ids
 
                 # Creates classifer object
                 classifier = Classifier(term, wiki_page_ids)
-                classifiers_list.append(classifer)
+                print '2_1 @@@@@@@@@@@@@@@@'
+                print classifier.term
+
+                classifiers_list.append(classifier)
 
             # 4 classify term and paragraph
             wiki_page_id = classifier.classify_text(paragraph)
+            print '3 @@@@@@@@@@@@@@@@'
+            print wiki_page_id
 
-            wikipage = WikiPage.objects.get(pageid=wiki_page_id)
+            wikipage = WikiPage.objects.get(page_id=wiki_page_id)
 
             search = Search(
                 wikipage = wikipage,

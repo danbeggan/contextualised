@@ -5,7 +5,7 @@ class WikiPageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WikiPage
-        fields = ('title', 'pageid', 'extract')
+        fields = ('title', 'page_id', 'extract')
 
 class SearchSerializer(serializers.ModelSerializer):
     wikipage = WikiPageSerializer(read_only=True)
