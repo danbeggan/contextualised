@@ -1,5 +1,6 @@
 from django.db import models
 
+# TODO: delete classifier model
 class Classifier(models.Model):
     term = models.CharField(max_length=80)
     training_data = models.TextField()

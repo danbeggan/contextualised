@@ -1,24 +1,26 @@
 import requests
-
 from .models import WikiPage
 
 # https://en.wikipedia.org/w/api.php?format=json&action=query&generator=search&gsrnamespace=0&gsrsearch=trump&indexpageids=1&gsrlimit=5&prop=pageimages|extracts&pilimit=max&exintro=&explaintext=1&exlimit=max
 
-def search_wikipedia (term):
+def search_wikipedia (term, no_results=5, extract_sentences=''):
+    # Query params
     atts = {}
 
-    atts['format'] = 'json'   # format=json
-    atts['action'] = 'query'  # action=query
+    atts['format'] = 'json'
+    atts['action'] = 'query'
     atts['generator'] = 'search'
     atts['gsrnamespace'] = '0'
-    atts['indexpageids'] = '1' # Include page ids
-    atts['gsrlimit'] = '1' # No. results
+    atts['indexpageids'] = '1' # Include list of page ids
     atts['prop'] = 'pageimages|extracts' # Return content
     atts['explaintext'] = '1' # Remove this to include markup
     atts['exintro'] = '' # Remove this for entire article
     atts['exlimit'] = 'max' # Extract limit size
 
-    atts['gsrsearch'] = term # titles=Stanford%20University
+    atts['gsrlimit'] = no_results # No. results (default 5)
+    atts['exsentences'] = extract_sentences # Extract limit size (default full)
+
+    atts['gsrsearch'] = term # Search term
 
     baseurl = 'http://en.wikipedia.org/w/api.php'
 
@@ -26,12 +28,16 @@ def search_wikipedia (term):
 
     data = resp.json()
 
-    pageids = data['query']['pageids']
+    page_ids = data['query']['pageids']
 
-    wikipage, created = WikiPage.objects.get_or_create(
-        title=data['query']['pages'][pageids[0]]['title'],
-        pageid=data['query']['pageids'][0],
-        extract=data['query']['pages'][pageids[0]]['extract']
-    )
+    for i in page_ids:
+        title = data['query']['pages'][i]['title']
+        extract = data['query']['pages'][i]['extract']
 
-    return wikipage
+        wiki_page = WikiPage.objects.get_or_create(
+            title = title
+            pageid = i
+            extract = extract
+        )
+
+    return page_ids

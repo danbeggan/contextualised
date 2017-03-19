@@ -7,28 +7,25 @@ class Classifier (object):
     # Initialiser
     def __init__ ( self, term, wiki_page_ids ):
         self.term = term
-
-        # Array of ids for wikipedia pages model
         self.wiki_page_ids = wiki_page_ids
-
         self.training_data = []
-
         # Searches is a list of ids of searches used to improve classifier (initially empty)
         self.searches = []
 
+        # Build the classifier
+        self.build_classifier()
+
     # Builds classifier
-    def build_classifier( self, wiki_pages ):
+    def build_classifier( self ):
         # Get the models from database
-        # TODO: fix loop
-        wiki_pages = WikiPage.objects.filter(id__in=[self.wiki_page_ids])
+        wiki_pages = WikiPage.objects.filter(pageid__in=[self.wiki_page_ids])
 
         for page in wiki_pages:
             # Dont include disambiguation article in training data
             if "(disambiguation)" not in page.title:
                 extract = TextProcessor.remove_stops_and_lemmatize(page.extract)
 
-                # TODO: possibly change to id for the classifier label
-                data = Classifier.process_for_classifier(extract, page.title)
+                data = Classifier.process_for_classifier(extract, page.pageid)
 
             self.training_data.append(data)
 
@@ -36,9 +33,12 @@ class Classifier (object):
         self.classifier = NaiveBayesClassifier.train(self.training_data)
 
     # Adds more data to the classifier
-    # TODO: need to format data
-    def extend_classifier( self, data ):
-        self.training_data = self.training_data + data
+    def extend_classifier( self, text, page_id ):
+        text_formatted = TextProcessor.remove_stops_and_lemmatize(text)
+
+        self.training_data.append(Classifier.process_for_classifier(text_formatted, page_id))
+
+        self.classifier = NaiveBayesClassifier.train(self.training_data)
 
     def classify_text( self, text ):
         text = TextProcessor.remove_stops_and_lemmatize(text)
