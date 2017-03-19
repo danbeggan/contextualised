@@ -17,6 +17,12 @@ class SearchViewSet(viewsets.ViewSet):
         serializer = SearchSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    def retrieve(self, request, pk=None):
+        search = Search.objects.get(pk=pk)
+        serializer = SearchSerializer(search)
+
+        return Response(serializer.data)
+
     # Extract data from reqest, pass to wsd.classify and create & return search
     def create(self, request):
         term = request.query_params.get('term', '')
@@ -32,29 +38,20 @@ class SearchViewSet(viewsets.ViewSet):
 
             # 2 check if classifier exhists
             # 3.1 YES then get classifier [array]
-            classifier = next((x for x in classifiers_list if x.value == value), None)
-
-            print '1 @@@@@@@@@@@@@@@@'
-            print classifier
+            classifier = next((x for x in classifiers_list if x.term == term_lemma), None)
 
             # 3.2 NO then create classifier
             if classifier == None:
                 # Search wikipedia returns ids for pages & creates models
                 wiki_page_ids = search_wikipedia(term_lemma)
-                print '2 @@@@@@@@@@@@@@@@'
-                print wiki_page_ids
 
                 # Creates classifer object
                 classifier = Classifier(term, wiki_page_ids)
-                print '2_1 @@@@@@@@@@@@@@@@'
-                print classifier.term
 
                 classifiers_list.append(classifier)
 
             # 4 classify term and paragraph
             wiki_page_id = classifier.classify_text(paragraph)
-            print '3 @@@@@@@@@@@@@@@@'
-            print wiki_page_id
 
             wikipage = WikiPage.objects.get(page_id=wiki_page_id)
 
@@ -72,3 +69,18 @@ class SearchViewSet(viewsets.ViewSet):
             return Response(serializer.data)
 
         return Response({'error': 'bad request'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Use a put
+    def update(self, request, pk=None):
+        # search_id = request.query_params.get('search_id', '')
+        search = Search.objects.get(pk=pk)
+
+        # TODO: update classifier to include terms in the search text
+
+        search.correct_wiki_returned = True
+        search.save()
+
+        serializer = SearchSerializer(search)
+
+        return Response(serializer.data)
+        # return Response({'success': 'search updated'})

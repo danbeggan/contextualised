@@ -12,4 +12,4 @@ class SearchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Search
-        fields = ('id', 'term', 'term_lemma', 'paragraph', 'wikipage')
+        fields = ('id', 'term', 'term_lemma', 'correct_wiki_returned', 'paragraph', 'wikipage')
