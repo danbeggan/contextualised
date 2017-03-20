@@ -14,11 +14,11 @@ def search_wikipedia (term, no_results=5, extract_sentences=''):
     atts['indexpageids'] = '1' # Include list of page ids
     atts['prop'] = 'pageimages|extracts' # Return content
     atts['explaintext'] = '1' # Remove this to include markup
-    atts['exintro'] = '' # Remove this for entire article
+    atts['exintro'] = '0' # Remove this for entire article
     atts['exlimit'] = 'max' # Extract limit size
 
     atts['gsrlimit'] = no_results # No. results (default 5)
-    atts['exsentences'] = extract_sentences # Extract limit size (default full)
+    # atts['exsentences'] = extract_sentences # Extract limit size (default full)
 
     atts['gsrsearch'] = term # Search term
 

@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import APIException
+import json
 
 from .models import WikiPage, Search
 from .serializers import SearchSerializer
@@ -72,12 +73,19 @@ class SearchViewSet(viewsets.ViewSet):
 
     # Use a put
     def update(self, request, pk=None):
-        # search_id = request.query_params.get('search_id', '')
+        correct_wiki_returned = json.loads(request.query_params.get('correct_wiki_returned', ''))
         search = Search.objects.get(pk=pk)
 
-        # TODO: update classifier to include terms in the search text
+        classifiers_list = []
+        # TODO: sort out classifiers list
+        if correct_wiki_returned:
+            classifier = next((x for x in classifiers_list if x.term == search.term_lemma), None)
 
-        search.correct_wiki_returned = True
+            # update classifier to include terms in the search text
+            # TODO: resave classifier
+            # classifier.extend_classifier(search.paragraph, search.wiki_page.page_id)
+
+        search.correct_wiki_returned = correct_wiki_returned
         search.save()
 
         serializer = SearchSerializer(search)

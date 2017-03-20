@@ -11,8 +11,10 @@ class TextProcessor (object):
     tokenizer = RegexpTokenizer(r'\w+')
     wordnet_lemmatizer = WordNetLemmatizer()
 
+    # Removes punctuation from a piece of text
     @classmethod
     def remove_punctuation ( cls, text ):
+        text = text.lower()
         return re.sub(r'[^\w\s]','',text)
 
     # Takes text (term or paragraph) and removes punctuation

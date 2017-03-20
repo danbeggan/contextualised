@@ -20,11 +20,8 @@ class Classifier (object):
     # Builds classifier
     def build_classifier( self ):
         # Get the models from database
-        print '1.1 @@@@@@@@'
-
         wiki_pages = WikiPage.objects.filter(page_id__in=self.wiki_page_ids)
 
-        print '1.2 @@@@@@@@'
         for page in wiki_pages:
             # Dont include disambiguation article in training data
             if "(disambiguation)" not in page.title:
@@ -45,6 +42,7 @@ class Classifier (object):
 
         self.classifier = NaiveBayesClassifier.train(self.training_data)
 
+    # Returns the id of the wikipedia article
     def classify_text( self, text ):
         text = TextProcessor.remove_stops_and_lemmatize(text)
         words = Classifier.words_to_dict(text)
