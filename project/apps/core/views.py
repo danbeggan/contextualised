@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import APIException
+
 import json
 
 from .models import WikiPage, Search
@@ -10,6 +11,9 @@ from .serializers import SearchSerializer
 from .text_processing import TextProcessor
 from .classification import Classifier
 from .wiki import search_wikipedia
+from .pickler import load_classifiers, save_classifiers
+
+classifiers_list = load_classifiers()
 
 class SearchViewSet(viewsets.ViewSet):
 
@@ -35,11 +39,9 @@ class SearchViewSet(viewsets.ViewSet):
             # 1 get term lemma
             term_lemma = TextProcessor.get_lemma(term)
 
-            classifiers_list = []
-
             # 2 check if classifier exhists
             # 3.1 YES then get classifier [array]
-            classifier = next((x for x in classifiers_list if x.term == term_lemma), None)
+            classifier = next((x for x in classifiers_list if x.term.lower() == term_lemma), None)
 
             # 3.2 NO then create classifier
             if classifier == None:
@@ -50,6 +52,8 @@ class SearchViewSet(viewsets.ViewSet):
                 classifier = Classifier(term, wiki_page_ids)
 
                 classifiers_list.append(classifier)
+
+                save_classifiers(classifiers_list)
 
             # 4 classify term and paragraph
             wiki_page_id = classifier.classify_text(paragraph)
@@ -76,14 +80,11 @@ class SearchViewSet(viewsets.ViewSet):
         correct_wiki_returned = json.loads(request.query_params.get('correct_wiki_returned', ''))
         search = Search.objects.get(pk=pk)
 
-        classifiers_list = []
-        # TODO: sort out classifiers list
         if correct_wiki_returned:
-            classifier = next((x for x in classifiers_list if x.term == search.term_lemma), None)
+            classifier = next((x for x in classifiers_list if x.term.lower() == search.term_lemma), None)
 
-            # update classifier to include terms in the search text
-            # TODO: resave classifier
-            # classifier.extend_classifier(search.paragraph, search.wiki_page.page_id)
+            classifier.extend_classifier(search.paragraph, search.wiki_page.page_id)
+            save_classifiers(classifiers_list)
 
         search.correct_wiki_returned = correct_wiki_returned
         search.save()
