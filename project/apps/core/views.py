@@ -83,13 +83,14 @@ class SearchViewSet(viewsets.ViewSet):
         if correct_wiki_returned:
             classifier = next((x for x in classifiers_list if x.term.lower() == search.term_lemma), None)
 
-            classifier.extend_classifier(search.paragraph, search.wiki_page.page_id)
+            classifier.extend_classifier(search.paragraph, search.wikipage.page_id)
             save_classifiers(classifiers_list)
 
-        search.correct_wiki_returned = correct_wiki_returned
-        search.save()
+            search.correct_wiki_returned = correct_wiki_returned
+            search.save()
 
-        serializer = SearchSerializer(search)
+            serializer = SearchSerializer(search)
 
-        return Response(serializer.data)
-        # return Response({'success': 'search updated'})
+            return Response(serializer.data)
+        else:
+            return Response({'error': 'search not updated'})
