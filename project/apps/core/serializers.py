@@ -10,7 +10,6 @@ class WikiPageSerializer(serializers.ModelSerializer):
 class SearchSerializer(serializers.ModelSerializer):
     wikipage = WikiPageSerializer(read_only=True)
 
-    # TODO: remove correct_wiki_returned from serializer
     class Meta:
         model = Search
         fields = ('id', 'term', 'term_lemma', 'correct_wiki_returned', 'paragraph', 'wikipage')

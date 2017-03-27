@@ -10,6 +10,7 @@ class Classifier (object):
     def __init__ ( self, term, wiki_page_ids ):
         self.term = term
         self.wiki_page_ids = wiki_page_ids
+        # Starts off as wikipedia articles, extend to include search paragraphs
         self.training_data = []
         # Searches is a list of ids of searches used to improve classifier (initially empty)
         self.searches = []
@@ -35,9 +36,10 @@ class Classifier (object):
         self.classifier = NaiveBayesClassifier.train(self.training_data)
 
     # Adds more data to the classifier
-    def extend_classifier( self, text, page_id ):
+    def extend_classifier( self, text, page_id, search_id ):
         text_formatted = TextProcessor.remove_stops_and_lemmatize(text)
 
+        self.searches.append(search_id)
         self.training_data.append(Classifier.process_for_classifier(text_formatted, page_id))
 
         self.classifier = NaiveBayesClassifier.train(self.training_data)

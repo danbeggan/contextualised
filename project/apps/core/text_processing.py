@@ -22,6 +22,7 @@ class TextProcessor (object):
     def tokenize_text ( cls, text ):
         return cls.tokenizer.tokenize(text)
 
+    # TODO: catagorize term and use appropriate vowel/noun tag in lemmatizer
     # Takes a term of phrase and finds root form
     @classmethod
     def get_lemma ( cls, term ):
@@ -37,7 +38,6 @@ class TextProcessor (object):
     def remove_stops_and_lemmatize ( cls, paragraph ):
         # Convert to lower case and split
         words = cls.tokenize_text(paragraph.lower())
-
         # Remove stopwords
         words = cls.remove_stopwords(words)
 
@@ -46,5 +46,4 @@ class TextProcessor (object):
         for word in words:
             normalised_words.append(cls.get_lemma(word))
 
-        # return( " ".join( normalised_words ) )
         return normalised_words

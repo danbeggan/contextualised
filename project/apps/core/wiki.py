@@ -5,27 +5,25 @@ from .models import WikiPage
 
 def search_wikipedia (term, no_results=5, extract_sentences=''):
     # Query params
-    atts = {}
+    parameters = {}
 
-    atts['format'] = 'json'
-    atts['action'] = 'query'
-    atts['generator'] = 'search'
-    atts['gsrnamespace'] = '0'
-    atts['indexpageids'] = '1' # Include list of page ids
-    atts['prop'] = 'pageimages|extracts' # Return content
-    atts['explaintext'] = '1' # Remove this to include markup
-    atts['exintro'] = '0' # Remove this for entire article
-    atts['exlimit'] = 'max' # Extract limit size
+    parameters['format'] = 'json'
+    parameters['action'] = 'query'
+    parameters['generator'] = 'search'
+    parameters['gsrnamespace'] = '0'
+    parameters['indexpageids'] = '1' # Include list of page ids
+    parameters['prop'] = 'pageimages|extracts' # Return content
+    parameters['explaintext'] = '1' # Remove this to include markup
+    parameters['exintro'] = '0' # Remove this for entire article
+    parameters['exlimit'] = 'max' # Extract limit size
 
-    atts['gsrlimit'] = no_results # No. results (default 5)
-    # atts['exsentences'] = extract_sentences # Extract limit size (default full)
+    parameters['gsrlimit'] = no_results # No. results (default 5)
+    parameters['gsrsearch'] = term # Search term
 
-    atts['gsrsearch'] = term # Search term
+        # parameters['exsentences'] = extract_sentences # Extract limit size (default full)
 
     baseurl = 'http://en.wikipedia.org/w/api.php'
-
-    resp = requests.get(baseurl, params = atts)
-
+    resp = requests.get(baseurl, params = parameters)
     data = resp.json()
 
     page_ids = data['query']['pageids']

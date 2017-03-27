@@ -40,7 +40,6 @@ class SearchViewSet(viewsets.ViewSet):
             term_lemma = TextProcessor.get_lemma(term)
 
             # 2 check if classifier exhists
-            # 3.1 YES then get classifier [array]
             classifier = next((x for x in classifiers_list if x.term.lower() == term_lemma), None)
 
             # 3.2 NO then create classifier
@@ -77,14 +76,18 @@ class SearchViewSet(viewsets.ViewSet):
 
     # Use a put
     def update(self, request, pk=None):
-        correct_wiki_returned = json.loads(request.query_params.get('correct_wiki_returned', ''))
+        # Get boolean value correct_wiki_returned
+        correct_wiki_returned = json.loads(request.query_params.get('correct_wiki_returned', None))
         search = Search.objects.get(pk=pk)
 
-        if correct_wiki_returned:
-            classifier = next((x for x in classifiers_list if x.term.lower() == search.term_lemma), None)
+        if correct_wiki_returned != None:
+            if correct_wiki_returned:
+                # Get the classifer that was used to classifer search
+                classifier = next((x for x in classifiers_list if x.term.lower() == search.term_lemma), None)
 
-            classifier.extend_classifier(search.paragraph, search.wikipage.page_id)
-            save_classifiers(classifiers_list)
+                # Update classifier to include terms from original search
+                classifier.extend_classifier(search.paragraph, search.wikipage.page_id, pk)
+                save_classifiers(classifiers_list)
 
             search.correct_wiki_returned = correct_wiki_returned
             search.save()
