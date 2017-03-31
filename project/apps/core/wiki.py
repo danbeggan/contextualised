@@ -7,13 +7,13 @@ def search_wikipedia (term, no_results=5, extract_sentences=''):
     # Query params
     parameters = {}
 
-    parameters['format'] = 'json'
-    parameters['action'] = 'query'
-    parameters['generator'] = 'search'
+    parameters['format'] = 'json' # Query format and response type
+    parameters['action'] = 'query' # Tell wikipedia this is a query
+    parameters['generator'] = 'search' # Type of query
     parameters['gsrnamespace'] = '0'
-    parameters['indexpageids'] = '1' # Include list of page ids
-    parameters['prop'] = 'pageimages|extracts' # Return content
-    parameters['explaintext'] = '1' # Remove this to include markup
+    parameters['indexpageids'] = '1' # Include list of page ids true
+    parameters['prop'] = 'extracts' # What to return - article extract
+    parameters['explaintext'] = '1' # No html markup
     parameters['exintro'] = '0' # Remove this for entire article
     parameters['exlimit'] = 'max' # Extract limit size
 
@@ -32,9 +32,9 @@ def search_wikipedia (term, no_results=5, extract_sentences=''):
         title = data['query']['pages'][i]['title']
         extract = data['query']['pages'][i]['extract']
 
-        # Dont include disambiguation article in training data
+        # Dont include disambiguation articles
         if "(disambiguation)" not in title:
-            wiki_page = WikiPage.objects.get_or_create(
+            WikiPage.objects.get_or_create(
                 title = title,
                 page_id = i,
                 extract = extract

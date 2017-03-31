@@ -28,7 +28,7 @@ class SearchViewSet(viewsets.ViewSet):
 
         return Response(serializer.data)
 
-    # Extract data from reqest, pass to wsd.classify and create & return search
+    # Extract data from reqest, classify, create & return search
     def create(self, request):
         term = request.query_params.get('term', '')
         paragraph = request.query_params.get('paragraph','')
@@ -42,7 +42,7 @@ class SearchViewSet(viewsets.ViewSet):
             # 2 check if classifier exhists
             classifier = next((x for x in classifiers_list if x.term.lower() == term_lemma), None)
 
-            # 3.2 NO then create classifier
+            # 3 NO then create classifier
             if classifier == None:
                 # Search wikipedia returns ids for pages & creates models
                 wiki_page_ids = search_wikipedia(term_lemma)
@@ -51,12 +51,10 @@ class SearchViewSet(viewsets.ViewSet):
                 classifier = Classifier(term, wiki_page_ids)
 
                 classifiers_list.append(classifier)
-
                 save_classifiers(classifiers_list)
 
             # 4 classify term and paragraph
             wiki_page_id = classifier.classify_text(paragraph)
-
             wikipage = WikiPage.objects.get(page_id=wiki_page_id)
 
             search = Search(
@@ -65,11 +63,10 @@ class SearchViewSet(viewsets.ViewSet):
                 term_lemma = term_lemma,
                 paragraph = paragraph
             )
-
             search.save()
 
+            # Convert object to JSON for response
             serializer = SearchSerializer(search)
-
             return Response(serializer.data)
 
         return Response({'error': 'bad request'}, status=status.HTTP_400_BAD_REQUEST)

@@ -1,7 +1,5 @@
 from nltk.classify import NaiveBayesClassifier
-
 from .models import WikiPage, Search
-
 from .text_processing import TextProcessor
 
 class Classifier (object):
@@ -24,15 +22,13 @@ class Classifier (object):
         wiki_pages = WikiPage.objects.filter(page_id__in=self.wiki_page_ids)
 
         for page in wiki_pages:
-            # Dont include disambiguation article in training data
-            if "(disambiguation)" not in page.title:
-                extract = TextProcessor.remove_stops_and_lemmatize(page.extract)
+            extract = TextProcessor.remove_stops_and_lemmatize(page.extract)
 
-                data = Classifier.process_for_classifier(extract, page.page_id)
+            data = Classifier.process_for_classifier(extract, page.page_id)
 
             self.training_data.append(data)
 
-        # Use the wiki_pages to build classifer
+        # Build classifer for class instance
         self.classifier = NaiveBayesClassifier.train(self.training_data)
 
     # Adds more data to the classifier
@@ -50,6 +46,9 @@ class Classifier (object):
         words = Classifier.words_to_dict(text)
 
         return self.classifier.classify(words)
+
+    def get_accuracy( self, test_data ):
+        return self.classifier.accuracy(test_data)
 
     # Takes array of words and adds true
     @classmethod

@@ -17,12 +17,11 @@ class TextProcessor (object):
         text = text.lower()
         return re.sub(r'[^\w\s]','',text)
 
-    # Takes text (term or paragraph) and removes punctuation
+    # Tokenizes text (term or paragraph) and removes punctuation
     @classmethod
     def tokenize_text ( cls, text ):
         return cls.tokenizer.tokenize(text)
 
-    # TODO: catagorize term and use appropriate vowel/noun tag in lemmatizer
     # Takes a term of phrase and finds root form
     @classmethod
     def get_lemma ( cls, term ):
