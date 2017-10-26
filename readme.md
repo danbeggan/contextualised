@@ -5,3 +5,5 @@ This is a server for passing JSON terms and paragraphs in and using machine lear
 * * import nltk
 * * nltk.download('wordnet')
 * python project/manage.py runserver
+
+Can be used in conjunction with plugin @ github.com/danbeggan/contextualised-plugin
